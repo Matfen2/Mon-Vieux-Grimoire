@@ -11,5 +11,6 @@ router.post('/', auth, multer, bookCtrl.createBook);      // Créer un nouveau l
 router.get('/:id', auth, bookCtrl.getOneBook);            // Récupérer un livre spécifique
 router.put('/:id', auth, multer, bookCtrl.modifyBook);    // Mettre à jour un livre spécifique
 router.delete('/:id', auth, bookCtrl.deleteBook);         // Supprimer un livre spécifique
+router.post('/:id/rating', auth, bookCtrl.addRating);     // Ajouter une note à un livre
 
 module.exports = router;
