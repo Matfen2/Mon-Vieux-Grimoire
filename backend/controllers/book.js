@@ -3,7 +3,7 @@ const fs = require('fs');
 
 // Créer un livre
 exports.createBook = (req, res, next) => {
-   const bookObject = JSON.parse(req.body.book); // Correction : utiliser "book" au lieu de "thing"
+   const bookObject = JSON.parse(req.body.book);
    delete bookObject._id;
    delete bookObject._userId;
    const book = new Book({
@@ -14,14 +14,14 @@ exports.createBook = (req, res, next) => {
 
    book.save()
    .then(() => res.status(201).json({ message: 'Livre enregistré !' }))
-   .catch(error => res.status(400).json({ error }));
+   .catch(error => res.status(400).json({ error: 'Erreur lors de la création du livre.' }));
 };
 
 // Obtenir tous les livres
 exports.getAllBooks = (req, res, next) => {
   Book.find()
     .then(books => res.status(200).json(books))
-    .catch(error => res.status(400).json({ error }));
+    .catch(error => res.status(400).json({ error: 'Erreur lors de la récupération des livres.' }));
 };
 
 // Obtenir un livre spécifique
@@ -33,7 +33,7 @@ exports.getOneBook = (req, res, next) => {
       }
       res.status(200).json(book);
     })
-    .catch(error => res.status(404).json({ error }));
+    .catch(error => res.status(500).json({ error: 'Erreur lors de la récupération du livre.' }));
 };
 
 // Mettre à jour un livre
@@ -46,31 +46,35 @@ exports.modifyBook = (req, res, next) => {
    delete bookObject._userId;
    Book.findOne({ _id: req.params.id })
        .then((book) => {
-           if (book.userId != req.auth.userId) {
-               res.status(401).json({ message: 'Non autorisé' });
-           } else {
-               Book.updateOne({ _id: req.params.id }, { ...bookObject, _id: req.params.id })
-               .then(() => res.status(200).json({ message: 'Livre modifié !' }))
-               .catch(error => res.status(401).json({ error }));
+           if (!book) {
+               return res.status(404).json({ message: 'Livre non trouvé !' });
            }
+           if (book.userId !== req.auth.userId) {
+               return res.status(401).json({ message: 'Non autorisé' });
+           }
+           Book.updateOne({ _id: req.params.id }, { ...bookObject, _id: req.params.id })
+           .then(() => res.status(200).json({ message: 'Livre modifié !' }))
+           .catch(error => res.status(400).json({ error: 'Erreur lors de la modification du livre.' }));
        })
-       .catch(error => res.status(400).json({ error }));
+       .catch(error => res.status(500).json({ error: 'Erreur lors de la récupération du livre.' }));
 };
 
 // Supprimer un livre
 exports.deleteBook = (req, res, next) => {
    Book.findOne({ _id: req.params.id })
     .then(book => {
-      if (book.userId != req.auth.userId) {
-        res.status(401).json({ message: 'Non autorisé' });
-      } else {
-        const filename = book.imageUrl.split('/images/')[1];
-        fs.unlink(`images/${filename}`, () => {
-          Book.deleteOne({ _id: req.params.id })
-          .then(() => res.status(200).json({ message: 'Livre supprimé !' }))
-          .catch(error => res.status(401).json({ error }));
-        });
+      if (!book) {
+        return res.status(404).json({ message: 'Livre non trouvé !' });
       }
+      if (book.userId !== req.auth.userId) {
+        return res.status(401).json({ message: 'Non autorisé' });
+      }
+      const filename = book.imageUrl.split('/images/')[1];
+      fs.unlink(`images/${filename}`, () => {
+        Book.deleteOne({ _id: req.params.id })
+        .then(() => res.status(200).json({ message: 'Livre supprimé !' }))
+        .catch(error => res.status(400).json({ error: 'Erreur lors de la suppression du livre.' }));
+      });
     })
-    .catch(error => res.status(500).json({ error }));
+    .catch(error => res.status(500).json({ error: 'Erreur lors de la récupération du livre.' }));
 };

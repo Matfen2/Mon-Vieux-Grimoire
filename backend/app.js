@@ -1,12 +1,15 @@
 const path = require('path');
 const express = require('express');
 const mongoose = require('mongoose');
+const userRoutes = require('./routes/user');
+const bookRoutes = require('./routes/book');
 const app = express();
 
 app.use(express.json());
 app.use('/images', express.static(path.join(__dirname, 'images')));
 
-const bookRoutes = require('./routes/book');
+app.use('/api/auth', userRoutes);  // Route pour l'authentification
+app.use('/api/books', bookRoutes); // Route pour les livres
 
 // Connexion à MongoDB
 mongoose.connect('mongodb+srv://matfen20:Q4iFM73xVi6jrtIv@site-books.fvm4q.mongodb.net/?retryWrites=true&w=majority&appName=Site-Books')
