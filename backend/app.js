@@ -24,6 +24,7 @@ app.use((req, res, next) => {
   next();
 });
 
+
 // Logging pour toutes les requêtes
 app.use((req, res, next) => {
   console.log('Requête reçue !');
