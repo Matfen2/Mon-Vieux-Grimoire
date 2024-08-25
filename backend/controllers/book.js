@@ -72,23 +72,25 @@ exports.modifyBook = (req, res, next) => {
 // Supprimer un livre
 exports.deleteBook = (req, res, next) => {
   Book.findOne({ _id: req.params.id })
-    .then(book => {
-      if (!book) {
-        return res.status(404).json({ message: 'Livre non trouvé !' });
+    .then((book) => {
+      if (book.userId != req.auth.userId) {
+        res.status(401).json({ message: "Non autorisé" });
+      } else {
+        const filename = book.imageUrl.split("/images/")[1];
+        fs.unlink(`images/${filename}`, () => {
+          Book.deleteOne({ _id: req.params.id })
+            .then(() => {
+              res.status(200).json({ message: "Livre supprimé" });
+            })
+            .catch((error) => res.status(401).json({ error }));
+        });
       }
-      if (book.userId !== req.auth.userId) {
-        return res.status(401).json({ message: 'Non autorisé' });
-      }
-      const filename = book.imageUrl.split('/images/')[1];
-      fs.unlink(`images/${filename}`, error => {
-        if (error) return res.status(500).json({ error });
-        Book.deleteOne({ _id: req.params.id })
-          .then(() => res.status(200).json({ message: 'Livre supprimé !' }))
-          .catch(error => res.status(400).json({ error: 'Erreur lors de la suppression du livre.' }));
-      });
     })
-    .catch(error => res.status(500).json({ error: 'Erreur lors de la récupération du livre.' }));
+    .catch((error) => {
+      res.status(500).json({ error });
+    });
 };
+
 
 // Ajouter une note à un livre
 exports.addRating = (req, res, next) => {
