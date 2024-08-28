@@ -11,7 +11,7 @@ exports.signup = (req, res, next) => {
         password: hash
       });
       user.save()
-        .then(() => res.status(201).json({ message: 'Utilisateur créé !' }))
+        .then(() => res.status(201).json({ message: 'Utilisateur créé avec succès !' }))
         .catch(error => res.status(400).json({ error }));
     })
     .catch(error => res.status(500).json({ error }));
@@ -29,13 +29,14 @@ exports.login = (req, res, next) => {
           if (!valid) {
             return res.status(401).json({ error: 'Mot de passe incorrect !' });
           }
+          const token = jwt.sign(
+            { userId: user._id },
+            process.env.JWT_SECRET,  // Utilisez la clé secrète définie dans le fichier .env
+            { expiresIn: '24h' }
+          );
           res.status(200).json({
             userId: user._id,
-            token: jwt.sign(
-              { userId: user._id },
-              'RANDOM_TOKEN_SECRET',
-              { expiresIn: '24h' }
-            )
+            token: token
           });
         })
         .catch(error => res.status(500).json({ error }));

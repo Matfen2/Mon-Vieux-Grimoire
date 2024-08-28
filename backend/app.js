@@ -24,10 +24,13 @@ app.use((req, res, next) => {
   next();
 });
 
+// Middleware pour servir les fichiers statiques
+app.use('/images', express.static(path.join(__dirname, 'images')));
 
-app.use('/api/auth', userRoutes);  // Route pour l'authentification
-app.use('/api/books', bookRoutes); // Route pour les livres
+// Routes pour les livres
+app.use("/api/books", bookRoutes);
 
-app.use("/images",express.static(path.join(__dirname,"images")));
+// Routes pour l'authentification
+app.use("/api/auth", userRoutes);
 
 module.exports = app;

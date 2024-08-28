@@ -4,12 +4,14 @@ const fs = require('fs');
 // Créer un livre
 exports.createBook = (req, res, next) => {
   try {
-    const bookObject = req.body; // JSON déjà parsé par express.json()
+    // Assurez-vous que les données sont correctement extraites
+    const bookObject = JSON.parse(req.body.book);
     delete bookObject._id;
+
     const book = new Book({
       ...bookObject,
       userId: req.auth.userId,
-      imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file ? req.file.filename : 'default-image.jpg'}`
+      imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
     });
 
     book.save()
