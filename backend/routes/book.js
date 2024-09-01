@@ -1,26 +1,30 @@
-const express = require('express');
-const router = express.Router();
+const express = require('express'); // Importation du framework Express
+const router = express.Router(); // Création d'un routeur Express
 
-const auth = require('../middleware/auth');
-const multer = require('../middleware/multer-config');
-const bookCtrl = require('../controllers/book');
+const auth = require("../middleware/auth"); // Importation du middleware d'authentification
+const multer = require("../middleware/multer-config"); // Importation du middleware de gestion des fichiers
 
-// Créer un livre
+const bookCtrl = require('../controllers/book'); // Importation du contrôleur des livres
+
+// Route pour créer un nouveau livre
 router.post("/", auth, multer.upload, multer.optimizeImage, bookCtrl.createBook);
 
-// Mettre à jour un livre
-router.put('/:id', auth, multer.upload, multer.optimizeImage, bookCtrl.modifyBook);
+// Route pour mettre à jour un livre existant
+router.put("/:id", auth, multer.upload, multer.optimizeImage, bookCtrl.modifyBook);
 
-// Supprimer un livre
-router.delete('/:id', auth, bookCtrl.deleteBook);
+// Route pour supprimer un livre existant
+router.delete("/:id", auth, bookCtrl.deleteBook);
 
-// Obtenir tous les livres
+// Route pour obtenir les livres avec les meilleures notes
+router.get("/bestrating", bookCtrl.bestRatings);
+
+// Route pour obtenir un livre par son ID
+router.get("/:id", bookCtrl.getOneBook);
+
+// Route pour noter un livre existant
+router.post("/:id/rating", auth, bookCtrl.rateOneBook);
+
+// Route pour obtenir tous les livres
 router.get('/', bookCtrl.getAllBooks);
 
-// Obtenir un livre spécifique
-router.get('/:id', bookCtrl.getOneBook);
-
-// Ajouter une note à un livre
-router.post('/:id/rating', auth, bookCtrl.addRating);
-
-module.exports = router;
+module.exports = router; // Exportation du routeur pour l'utiliser dans l'application principale
