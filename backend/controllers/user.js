@@ -3,9 +3,17 @@ const User = require('../models/User'); // Importation du modèle User
 const jwt = require('jsonwebtoken'); // Importation de jsonwebtoken pour la création de tokens JWT
 const dotenv = require('dotenv').config(); // Chargement des variables d'environnement
 
+// Regex pour valider le format de l'email
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 // Gestion de l'inscription des utilisateurs
 exports.signup = (req, res, next) => {
   console.log('Requête de signup reçue:', req.body);
+
+  // Vérification du format de l'email avant de procéder à l'inscription
+  if (!emailRegex.test(req.body.email)) {
+    return res.status(400).json({ message: 'Structure de l\'email incorrecte' });
+  }
 
   // Hachage du mot de passe avec bcrypt
   bcrypt
@@ -30,6 +38,11 @@ exports.signup = (req, res, next) => {
 // Gestion de la connexion des utilisateurs
 exports.login = (req, res, next) => {
   console.log('Requête de login reçue:', req.body);
+
+  // Vérification du format de l'email avant de procéder à la connexion
+  if (!emailRegex.test(req.body.email)) {
+    return res.status(400).json({ message: 'Structure de l\'email incorrecte' });
+  }
 
   // Recherche de l'utilisateur dans la base de données par email
   User.findOne({ email: req.body.email })
