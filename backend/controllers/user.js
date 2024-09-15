@@ -23,16 +23,18 @@ exports.signup = (req, res, next) => {
         email: req.body.email, // Stocke l'email de l'utilisateur
         password: hash, // Stocke le mot de passe haché
       });
-      return user.save(); // Sauvegarde l'utilisateur dans la base de données
-    })
-    .then(() => {
-      console.log('Utilisateur créé avec succès');
-      res.status(201).json({ message: 'Utilisateur créé' }); // Réponse en cas de succès
-    })
-    .catch((error) => {
-      console.error("Erreur lors de la création de l'utilisateur:", error);
-      res.status(400).json({ error }); // Réponse en cas d'erreur
-    });
+      return user.save()
+        .then(() => {
+        console.log('Utilisateur créé avec succès');
+          res.status(201).json({ message: 'Utilisateur créé' }); // Réponse en cas de succès
+        }).catch((error) => {
+        console.error("Erreur lors de la création de l'utilisateur:", error);
+          res.status(400).json({ error }); // Réponse en cas d'erreur
+        }); // Sauvegarde l'utilisateur dans la base de données
+    }).catch((error) => {
+      console.error("Une message s'est produite lors du cryptage du mot de passe:", error);
+        res.status(400).json({ error }); // Réponse en cas d'erreur
+  });
 };
 
 // Gestion de la connexion des utilisateurs
